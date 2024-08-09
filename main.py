@@ -22,6 +22,9 @@ class ScreenshotApp(QMainWindow):
         self.video_label.setFixedSize(400, 400)  # Set a fixed size for the video display
         self.video_label.move(300, 0)
 
+        self.recoding_info = QtWidgets.QLabel(self)
+        self.recoding_info.move(300, 0)
+
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
 
@@ -32,7 +35,7 @@ class ScreenshotApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Glabix Video Recorder")
-        self.setGeometry(50, 50, 1000, 1000)
+        self.setGeometry(50, 50, 1000, 500)
 
         text = QtWidgets.QLabel("Take a screenshot:", self)
         text.move(20, 0)
@@ -48,27 +51,29 @@ class ScreenshotApp(QMainWindow):
         video_text.move(20, 100)
         video_text.adjustSize()
 
-        start_video_button = QtWidgets.QPushButton("Grab", self)
-        start_video_button.move(20, 150)
-        start_video_button.adjustSize()
-        start_video_button.clicked.connect(self.grab_camera)
+        grab_btn = QtWidgets.QPushButton("Grab", self)
+        grab_btn.move(20, 150)
+        grab_btn.adjustSize()
+        grab_btn.clicked.connect(self.grab_camera)
 
-        start_video = QtWidgets.QPushButton("Record", self)
-        start_video.move(20, 180)
-        start_video.adjustSize()
-        start_video.clicked.connect(self.capture_video)
+        rec_btn = QtWidgets.QPushButton("Record", self)
+        rec_btn.move(20, 180)
+        rec_btn.adjustSize()
+        rec_btn.clicked.connect(self.capture_video)
 
-        start_video = QtWidgets.QPushButton("Stop", self)
-        start_video.move(20, 200)
-        start_video.adjustSize()
-        start_video.clicked.connect(self.stop_capture)
+        stop_btn = QtWidgets.QPushButton("Stop", self)
+        stop_btn.move(20, 210)
+        stop_btn.adjustSize()
+        stop_btn.clicked.connect(self.stop_capture)
 
     def grab_camera(self):
         print("Camera grabbed")
         self.video_label.setVisible(True)
         print("Video Visible")
+
         if self.cap is None:
             self.cap = cv2.VideoCapture(0)  # Use 0 for the default camera
+            print("timer start")
             self.timer.start(20)  # Update every 20 ms
 
     def update_frame(self):
@@ -105,12 +110,9 @@ class ScreenshotApp(QMainWindow):
                 self.out = None
 
     def stop_capture(self):
-        if self.is_recording:
-            self.is_recording = False
-            self.cap = None
-            if self.out is not None:
-                self.out.release()
-                self.out = None
+        self.is_recording = False
+        self.cap = None
+        self.out = None
 
         self.timer.stop()
         print("Timer stopped")
@@ -158,7 +160,7 @@ class ScreenshotApp(QMainWindow):
 
         self.save_file(screenshot)
 
-        time.sleep(0.7) # try to implement via QTimer
+        time.sleep(3) # try to implement via QTimer
         self.show()
 
 
