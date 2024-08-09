@@ -1,20 +1,18 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QFileDialog, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer
 import cv2
 import datetime
-
-import time
-
 import sys
-import os
-import subprocess
+
+from screen_shot_handler import ScreenShotHandler
 
 class ScreenshotApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.screen_shot_handler = ScreenShotHandler(self)
         self.initUI()
 
         # Initialize video label to display the video feed
@@ -43,8 +41,7 @@ class ScreenshotApp(QMainWindow):
 
         start_button = QtWidgets.QPushButton("Entire screen", self)
         start_button.move(20, 50)
-
-        start_button.clicked.connect(self.take_screen_shot)
+        start_button.clicked.connect(self.screen_shot_handler.take_screen_shot)
         start_button.adjustSize()
 
         video_text = QtWidgets.QLabel("Take a video:", self)
@@ -126,43 +123,6 @@ class ScreenshotApp(QMainWindow):
             if self.is_recording and self.out is not None:
                 self.out.release()
         event.accept()
-
-
-    def save_file(self, screenshot):
-        # Prompt user for file save location
-        options = QFileDialog.Options()
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save Screenshot", "", "JPEG Files (*.jpg);;All Files (*)", options=options)
-
-        if file_name:
-            # Ensure the file has a .jpg extension
-            if not file_name.lower().endswith('.jpg'):
-                file_name += '.jpg'
-
-            screenshot.save(file_name, 'jpg')
-
-            # Open the screenshot using the default image viewer
-            if sys.platform == "darwin":  # macOS
-                subprocess.run(["open", file_name])
-            elif sys.platform == "win32":  # Windows
-                os.startfile(file_name)
-            else:  # Linux or other platforms
-                subprocess.run(["xdg-open", file_name])
-
-    def take_screen_shot(self):
-        # Hide the main window
-        self.hide()
-
-        # Allow the window to be hidden before taking a screenshot
-        QtWidgets.QApplication.processEvents()
-
-        screen = QApplication.primaryScreen()
-        screenshot = screen.grabWindow(0)  # Capture the whole screen
-
-        self.save_file(screenshot)
-
-        time.sleep(3) # try to implement via QTimer
-        self.show()
-
 
 def main():
     app = QApplication(sys.argv)
