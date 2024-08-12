@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton
-from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer
 import cv2
 import datetime
@@ -8,6 +7,7 @@ import sys
 
 from screen_shot_handler import ScreenShotHandler
 from webcam_handler import WebcamHandler
+from screen_record_handler import ScreenRecordHandler
 
 class ScreenshotApp(QMainWindow):
     def __init__(self):
@@ -19,11 +19,15 @@ class ScreenshotApp(QMainWindow):
 
         self.screen_shot_handler = ScreenShotHandler(self)
         self.webcam_handler = WebcamHandler(self)
+        self.screen_record_handler = ScreenRecordHandler(self)
 
         self.initUI()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.webcam_handler.update_frame)
+
+        self.screen_timer = QTimer()
+        self.screen_timer.timeout.connect(self.screen_record_handler.update_frame)
 
     def initUI(self):
         self.setWindowTitle("Glabix Video Recorder")
@@ -56,6 +60,16 @@ class ScreenshotApp(QMainWindow):
         stop_btn.move(20, 210)
         stop_btn.adjustSize()
         stop_btn.clicked.connect(self.webcam_handler.stop_capture)
+
+        start_screen_rec_btn = QtWidgets.QPushButton("Record", self)
+        start_screen_rec_btn.move(20, 230)
+        start_screen_rec_btn.adjustSize()
+        start_screen_rec_btn.clicked.connect(self.screen_record_handler.capture_screen)
+
+        stop_screen_rec_btn = QtWidgets.QPushButton("Stop", self)
+        stop_screen_rec_btn.move(20, 250)
+        stop_screen_rec_btn.adjustSize()
+        stop_screen_rec_btn.clicked.connect(self.screen_record_handler.stop_capture)
 
 def main():
     app = QApplication(sys.argv)
